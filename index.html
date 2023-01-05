@@ -13,46 +13,85 @@
 <div class='container bg-dark text-white'>
   <div class='row'>
     <div class='col p-5'>
-      <h1>Shooting percentage</h1>
+      <h2>Shooting percentage</h2>
       <div class='form'>
         <input id='percentageInput' type='number' class='form-control' id='floatingInput' value='50' min='0' max='100' step='0.1' />
       </div>
     </div>
     <div class='col p-5 text-center'>
-      <button id='shootButton' type='button' class='btn btn-outline-light' style='--bs-btn-font-size: 2.5rem;'>
+      <button id='shootButton' type='button' class='btn btn-outline-light' style='--bs-btn-font-size: 2rem;'>
         Shoot your shot!
       </button>
-      <h3 id='shootingText' style='visibility: hidden;'></h3>
+    </div>
+  </div>
+  <div class='row'>
+    <div class='col text-center'>      
+      <h1 id='shootingText' style='visibility: hidden;'></h1>
     </div>
   </div>
   <div id='shotHistory' class='row' style='visibility: hidden;'>
-    Shot history:
-    <div id='shots'></div>
+    <div class='col p-5'>
+      <h5>Shot history</h5>
+      <div>Percentage: <span id='madePercentage'></span>%</div>
+      <div>Longest made streak: <span id='madeStreak'></span></div>
+      <div>Longest missed streak: <span id='missedStreak'></span></div>
+      <div>Shots: <span id='shots'></span></div>
+    </div>
   </div> 
 </div>
 
 <script>
   let shooting = false;
   let percentage = d3.select('#percentageInput').node().value;
+  let shots = []; 
 
   console.log(percentage)
 
+  const streak = (a, value) => a.reduce(({count, max}, item) => 
+    item === value
+      ? { count: ++count, max: Math.max(count, max) }
+      : { count: 0, max: max },
+    { count: 0, max: 0}).max;
+
+  const updateHistory = () => {
+    d3.select('#shotHistory')
+      .style('visibility', 'visible');
+      
+    const format = d3.format('.1f');
+    d3.select('#madePercentage').text(format(shots.filter(d => d).length / shots.length * 100));
+    d3.select('#madeStreak').text(streak(shots, true));
+    d3.select('#missedStreak').text(streak(shots, false));
+
+    d3.select('#shots').selectAll('i')
+      .data(shots)
+      .join('i')
+        .attr('class', d => d ? 'me-1 bi bi-check-circle' : 'me-1 bi bi-x-circle')
+        .style('color', d => d ? 'seagreen' : 'firebrick');
+  };  
+
   d3.select('#percentageInput').on('change', evt => {
     percentage = evt.target.value;
+    shots = [];
+
+    d3.select('#shootingText')
+      .style('visibility', 'hidden');
+
+    d3.select('#shotHistory')
+      .style('visibility', 'hidden');
   });
 
   d3.select('#shootButton').on('click', () => {
-    const text = d3.select('#shootingText')
+    const shootingText = d3.select('#shootingText')
       .style('visibility', 'visible')
       .text('The ball is up...');
 
     setTimeout(() => {
       const success = Math.random() < percentage / 100;
 
-      d3.select('#shotHistory')
-        .style('visibility', 'visible');
+      shots.push(success);
 
-      text.text(success ? `It's good!` : 'No good!')
+      shootingText.text(success ? `It's good!` : 'No good!');
+      updateHistory();
     }, 1000);
   });
 </script>
