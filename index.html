@@ -33,6 +33,7 @@
     <div class='col p-5'>
       <h5>Shot history</h5>
       <div>Percentage: <span id='madePercentage'></span>%</div>
+      <div>Total shots: <span id='totalShots'></span></div>
       <div>Longest made streak: <span id='madeStreak'></span></div>
       <div>Longest missed streak: <span id='missedStreak'></span></div>
       <div>Shots: <span id='shots'></span></div>
@@ -59,6 +60,7 @@
       
     const format = d3.format('.1f');
     d3.select('#madePercentage').text(format(shots.filter(d => d).length / shots.length * 100));
+    d3.select('#totalShots').text(shots.length);
     d3.select('#madeStreak').text(streak(shots, true));
     d3.select('#missedStreak').text(streak(shots, false));
 
@@ -70,7 +72,7 @@
   };  
 
   d3.select('#percentageInput').on('change', evt => {
-    percentage = evt.target.value;
+    percentage = +evt.target.value;
     shots = [];
 
     d3.select('#shootingText')
