@@ -71,20 +71,26 @@
         .style('color', d => d ? 'seagreen' : 'firebrick');
   };  
 
-  d3.select('#percentageInput').on('change', evt => {
-    percentage = +evt.target.value;
-    shots = [];
+  d3.select('#percentageInput')
+    .on('change', evt => {
+      // Validate input
+      percentage = Math.max(0, Math.min(+evt.target.value, 100));
+      evt.target.value = percentage;
 
-    d3.select('#shootingText')
-      .style('visibility', 'hidden');
+      shots = [];
 
-    d3.select('#shotHistory')
-      .style('visibility', 'hidden');
-  });
+      d3.select('#shootingText')
+        .style('visibility', 'hidden');
 
-  d3.select('#shootButton').on('click', () => {
-    const button = d3.select('#shootButton')
-      .attr('disabled', true);
+      d3.select('#shotHistory')
+        .style('visibility', 'hidden');
+    });
+
+  d3.select('#shootButton').on('click', evt => {
+    //const button = d3.select('#shootButton')
+    //  .attr('disabled', true);
+    const button = evt.target;
+    button.disabled = true;
 
     const shootingText = d3.select('#shootingText')
       .style('visibility', 'visible')
@@ -98,7 +104,7 @@
       shootingText.text(success ? `It's good!` : 'No good!');
       updateHistory();
 
-      button.attr('disabled', null);
+      button.disabled = null;
     }, 1000);
   });
 </script>
